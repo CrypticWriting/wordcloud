@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jan 17 13:58:14 2019
+
+@author: matiaspehkonen
+"""
+
+from os import path
+from PIL import Image
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+from wordcloud import WordCloud, STOPWORDS
+
+
+"""GET data directory (using getcwd() is needed to support 
+running example in generated IPython notebook)"""
+
+d = path.dirname(
+        __file__) if "__file__" in locals() else os.getcwd()
+
+# INPUTTING data to text variabl. Needed to add encoding as lating-1.
+text = open(
+        path.join(
+                d, 'smart.txt'
+                ), 
+                encoding="latin-1"
+                ).read()
+
+# INPUTTING masked image
+question_mask = np.array(
+        Image.open(
+                path.join(
+                        d, "question.png")))
+
+
+"""SETTING and choosing stopwords. 
+Stopwords are the words that aren't wanted
+in to the picture."""
+
+stopwords = set(STOPWORDS)
+
+# ADDING more stop words that we don't want to see on the plot
+stopwords.add("watch")
+stopwords.add("swiss")
+
+# SETTING wordcloud style 
+wc = WordCloud(
+        background_color="white", 
+        max_words=500, 
+        mask=question_mask,
+        stopwords=stopwords, 
+        contour_width=1, 
+        contour_color='black'
+        )
+
+# GENERATING wordcloud
+wc.generate(text)
+
+# SAVING wordcloud as a separate file
+wc.to_file(
+        path.join(
+                d, "question.png"))
+
+
+# PLOTTING the wordcloud 
+# - may take for a while depending on the size of the mask-image 
+plt.imshow(
+        wc, 
+        interpolation='bilinear'
+        )
+
+plt.axis("off")
+plt.figure()
+
+# AND plotting the original mask with axis
+plt.imshow(
+        question_mask, 
+        cmap=plt.cm.gray, 
+        interpolation='bilinear'
+        )
+plt.axis("on")
+plt.show()
